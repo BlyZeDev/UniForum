@@ -6,6 +6,7 @@ create table if not exists Users(
     Password binary(64) not null,
     Username varchar(50) not null,
     CreatedAt datetime not null,
+    Biography varchar(500) not null,
     IsDeleted boolean not null
 );
 
@@ -58,8 +59,8 @@ begin
         signal sqlstate '45000' set message_text = 'This username is already taken'
     end if;
 
-    insert into Users (Email, Password, Username, CreatedAt, IsDeleted)
-    values (_email, _password, _username, current_timestamp, false);
+    insert into Users (Email, Password, Username, CreatedAt, Biography, IsDeleted)
+    values (_email, _password, _username, current_timestamp, '-', false);
 end $$
 
 create procedure change_username(_email varchar(256), _username varchar(50))
@@ -69,10 +70,17 @@ begin
     where Email = _email;
 end $$
 
+create procedure edit_biography(_email varchar(256), _biography varchar(500))
+begin
+    update Users
+    set Biography = ifnull(_biography, '-')
+    where Email = _email;
+end $$
+
 create procedure delete_user(_email varchar(256))
 begin
     update Users
-    set Username = '[deleted]', Password = 0x00, IsDeleted = true
+    set Username = '[deleted]', Password = 0x00, Biography = '-', IsDeleted = true
     where Email = _email;
 end $$
 
