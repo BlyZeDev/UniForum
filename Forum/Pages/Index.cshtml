@@ -1,8 +1,7 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
-    var isAuthenticated = Convert.ToBoolean(TempData["IsLoggedIn"]);
+    ViewData["Title"] = "Index";
 }
 
 <!DOCTYPE html>
@@ -18,9 +17,12 @@
         <header class="d-flex justify-content-between py-3">
             <h1>Forum</h1>
             <div>
-                @if (isAuthenticated)
+                @if (Model.IsAuthenticated)
                 {
                     <a href="/Dashboard" class="btn btn-primary">Dashboard</a>
+                    <form method="post" asp-page-handler="Logout" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Logout</button>
+                    </form>
                 }
                 else
                 {
