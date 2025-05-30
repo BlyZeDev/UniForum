@@ -3,7 +3,7 @@ use forum;
 
 create table if not exists Users(
     Email varchar(256) not null primary key,
-    Password binary(64) not null,
+    Password binary(48) not null,
     Username varchar(50) not null,
     CreatedAt datetime not null,
     Biography varchar(500) not null,
