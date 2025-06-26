@@ -41,7 +41,7 @@ create table if not exists Likes(
     EntryAuthor varchar(256) not null,
     EntryCreatedAt datetime not null,
     primary key (LikeUser, EntryAuthor, EntryCreatedAt),
-    foreign key (LikeUser) references Users(Author)
+    foreign key (LikeUser) references Users(Email)
     on update cascade
     on delete cascade,
     foreign key (EntryAuthor, EntryCreatedAt) references Entries(Author, CreatedAt)
@@ -49,14 +49,24 @@ create table if not exists Likes(
     on delete cascade
 );
 
-delete from mysql.proc where db = 'forum' and type = 'PROCEDURE';
+drop procedure if exists register_user;
+drop procedure if exists change_username;
+drop procedure if exists edit_biography;
+drop procedure if exists delete_user;
+drop procedure if exists create_topic;
+drop procedure if exists delete_topic;
+drop procedure if exists create_entry;
+drop procedure if exists edit_entry;
+drop procedure if exists delete_entry;
+drop procedure if exists like_entry;
+drop procedure if exists unlike_entry;
 
 delimiter $$
 
 create procedure register_user(_email varchar(256), _password binary(64), _username varchar(50))
 begin
     if (exists(select 1 from Users where Username = _username)) then
-        signal sqlstate '45000' set message_text = 'This username is already taken'
+        signal sqlstate '45000' set message_text = 'This username is already taken';
     end if;
 
     insert into Users (Email, Password, Username, CreatedAt, Biography, IsDeleted)

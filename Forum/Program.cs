@@ -1,11 +1,14 @@
 namespace Forum;
 
+using Forum.Services;
+
 sealed class Program
 {
     static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddSingleton<DatabaseService>();
         builder.Services.AddRazorPages();
 
         await using (var app = builder.Build())
