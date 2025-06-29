@@ -26,19 +26,16 @@ public sealed class LoginModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid)
-        {
-            return Page();
-        }
+        TempData[Constants.AlertMessage] = "Der Login ist fehlgeschlagen";
+
+        if (!ModelState.IsValid) return Page();
 
         var userResult = await _database.GetUserAsync(Input.Email);
         if (userResult.IsFailed) return Page();
 
-        var user = userResult.Value;
-
-        if (Util.Equals(user.Password, Util.HashPassword(Input.Password)))
+        if (Util.Equals(userResult.Value.Password, Util.HashPassword(Input.Password)))
         {
-            TempData[Constants.TempLoginFailed] = false;
+            TempData[Constants.AlertMessage] = null;
 
             Response.Cookies.Append(Constants.AuthCookie, bool.TrueString, new CookieOptions
             {
@@ -49,21 +46,21 @@ public sealed class LoginModel : PageModel
             return RedirectToPage("/Index");
         }
 
-        TempData[Constants.TempLoginFailed] = true;
-        ModelState.AddModelError("", "Ungültige Anmeldedaten.");
         return Page();
     }
 
     public sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Dieses Feld ist nicht optional.")]
+        [EmailAddress(ErrorMessage = "Keine gültige E-Mail Adresse")]
+        [Display(Name = "E-Mail Adresse")]
         public required string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Dieses Feld ist nicht optional.")]
         [DataType(DataType.Password)]
-        [MinLength(8)]
-        [MaxLength(100)]
+        [MinLength(8, ErrorMessage = "Die Mindestlänge beträgt 8 Zeichen.")]
+        [MaxLength(100, ErrorMessage = "Die Maximallänge beträgt 100 Zeichen.")]
+        [Display(Name = "Passwort")]
         public required string Password { get; set; }
     }
 }
