@@ -19,10 +19,7 @@ public sealed class LoginModel : PageModel
         _database = database;
     }
 
-    public void OnGet()
-    {
-
-    }
+    public void OnGet() => Page();
 
     public async Task<IActionResult> OnPostAsync()
     {
@@ -33,11 +30,16 @@ public sealed class LoginModel : PageModel
         var userResult = await _database.GetUserAsync(Input.Email);
         if (userResult.IsFailed) return Page();
 
-        if (Util.Equals(userResult.Value.Password, Util.HashPassword(Input.Password)))
+        if (userResult.Value.Password == Util.HashPassword(Input.Password))
         {
             TempData[Constants.AlertMessage] = null;
 
-            Response.Cookies.Append(Constants.AuthCookie, bool.TrueString, new CookieOptions
+            Response.Cookies.Append(Constants.EmailAuthCookie, userResult.Value.Email, new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            });
+            Response.Cookies.Append(Constants.UsernameAuthCookie, userResult.Value.Username, new CookieOptions
             {
                 HttpOnly = true,
                 Expires = DateTimeOffset.UtcNow.AddDays(7)

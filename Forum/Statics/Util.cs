@@ -1,28 +1,20 @@
 ﻿namespace Forum.Statics;
 
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System.Buffers.Text;
 using System.Security.Cryptography;
 using System.Text;
 
 public static class Util
 {
-    public static bool Equals(Password left, Password right)
-    {
-        ReadOnlySpan<byte> leftSpan = left;
-        ReadOnlySpan<byte> rightSpan = right;
-
-        return leftSpan.SequenceEqual(rightSpan);
-    }
-
-    public static Password HashPassword(string password)
+    public static string HashPassword(string password)
     {
         Span<byte> passwordBytes = stackalloc byte[Encoding.UTF8.GetMaxByteCount(password.Length)];
         Encoding.UTF8.GetBytes(password, passwordBytes);
 
-        Span<byte> hashed = stackalloc byte[SHA3_256.HashSizeInBytes];
+        Span<byte> hashed = stackalloc byte[Base64.GetMaxEncodedToUtf8Length(SHA3_512.HashSizeInBytes)];
         SHA3_512.HashData(passwordBytes, hashed);
 
-        return Unsafe.ReadUnaligned<Password>(ref MemoryMarshal.GetReference(hashed));
+        Base64.EncodeToUtf8InPlace(hashed, SHA3_512.HashSizeInBytes, out var written);
+        return Encoding.UTF8.GetString(hashed[..written]);
     }
 }

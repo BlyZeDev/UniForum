@@ -14,9 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.66" />
-    <PackageReference Include="FluentResults" Version="3.16.0" />
-    <PackageReference Include="Markdig" Version="0.41.1" />
-    <PackageReference Include="Markdown.ColorCode" Version="3.0.0" />
+    <PackageReference Include="FluentResults" Version="4.0.0" />
     <PackageReference Include="MySqlConnector" Version="2.4.0" />
   </ItemGroup>
 

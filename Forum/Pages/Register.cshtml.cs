@@ -19,22 +19,23 @@ public sealed class RegisterModel : PageModel
         _database = database;
     }
 
-    public IActionResult OnGet()
-    {
-        return Page();
-    }
-
     public async Task<IActionResult> OnPostAsync()
     {
         TempData[Constants.AlertMessage] = "Die Registrierung ist fehlgeschlagen";
 
         if (!ModelState.IsValid) return Page();
 
-        var isEmailTaken = await _database.IsEmailTaken(Input.Email);
+        var isEmailTaken = await _database.IsEmailTakenAsync(Input.Email);
         if (isEmailTaken.IsFailed || isEmailTaken.Value) return Page();
 
-        TempData[Constants.AlertMessage] = "Test Email not taken";
-        return Page();
+        var isUsernameTaken = await _database.IsUsernameTakenAsync(Input.Username);
+        if (isUsernameTaken.IsFailed || isUsernameTaken.Value) return Page();
+
+        var result = await _database.RegisterUserAsync(Input.Email, Util.HashPassword(Input.Password), Input.Username);
+        if (result.IsFailed) return Page();
+
+        TempData[Constants.AlertMessage] = "Die Registrierung war erfolgreich, bitte anmelden";
+        return Redirect("/Login");
     }
 
     public sealed class InputModel
